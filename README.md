@@ -60,11 +60,12 @@ links at the bottom of the page, like this:
 
 > 
 > Next: [Performance and Optimization](#)
-> ---------- 
+> 
 > - [Introduction](#)
 > - [Performance and Optimization](#)
 > - [Specifications](#)
 > - [Conclusion](#)
+> 
 
 This Pagination Textformatter will handle all of it for you. Setting up pagination 
 titles is simple. Just follow the instructions under "How to use" above, but follow 
@@ -79,7 +80,6 @@ each line of 5+ hyphens with the title you want to use. Example:
 > ----- Performance and Optimization
 > 
 > This is the first line of text on page 2. 
-> `````
 
 Specifying a title for the first pagination (as in "Introduction" above) is optional.
 If a title is not specified at the top of the content, the page title will be used as 
