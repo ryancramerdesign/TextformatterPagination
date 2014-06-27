@@ -36,11 +36,13 @@ of examples, we will assume you added it to a template named "basic-page".
 of copy in your "body" field (or whatever field you added it to). Locate the position where 
 you want to separate each page and type in a line of at least five hyphens in a row:
 
-> ...This is the last line of text on page 1.
-> 
-> ----------------
-> 
-> This is the first line of text on page 2...
+```
+...This is the last line of text on page 1.
+
+----------------
+
+This is the first line of text on page 2.
+```
 
 The actual markup (HTML) in your editor would look like this: 
 
@@ -95,7 +97,7 @@ specify all the options. Just specify the ones you want to change from the defau
 that many of these come from the MarkupPagerNav module, which is used by this module
 for outputting numbered pagination. 
 
-```php
+```PHP
 $config->TextformatterPagination = array(
 
   /**** TOGGLES *************************************************************/
@@ -175,7 +177,7 @@ for example.
 
 ### Example of configuration for Zurb Foundation pagination
 
-```php
+```PHP
 $config->TextformatterPagination = array(
   'nextItemLabel' => '&raquo;',
   'nextItemClass' => 'arrow',
