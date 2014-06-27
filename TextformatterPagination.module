@@ -86,7 +86,7 @@ class TextformatterPagination extends Textformatter {
 				continue; 
 			}
 			$title = trim(substr($v, 0, $pos)); 
-			$titles[$k] = $title; 
+			$titles[$k] = trim($title); 
 			if(strlen($title)) $hasTitles = true; 
 			$blocks[$k] = substr($v, $pos+4); 
 		}

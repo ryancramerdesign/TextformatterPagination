@@ -10,6 +10,8 @@ Also included is the option for title pagination. That means assigning a title/h
 each pagination and giving the user a list of those titles they can click on to move to 
 each section of the article. 
 
+**[Here is an example of this module in action](http://processwire.com/api/modules/pagination-textformatter-example/)**
+
 
 ## How to install 
 
