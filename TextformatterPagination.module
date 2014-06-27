@@ -1,0 +1,175 @@
+<?php
+
+/**
+ * ProcessWire Pagination Textformatter
+ *
+ * ProcessWire 2.x 
+ * Copyright (C) 2014 by Ryan Cramer 
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * 
+ * http://processwire.com
+ *
+ */
+
+class TextformatterPagination extends Textformatter {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'Pagination', 
+			'version' => 1, 
+			'summary' => "Provides pagination capability within a block of copy. Put 5+ hyphens '-----' on a single line (within paragraph tags) for regular pagination, or '-----Your Text' on a single line for named pagination.", 
+			'requires' => 'MarkupPagerNav'
+		); 
+	}
+
+	/**
+	 * Pagination options
+	 *
+	 * You may also include any options present in MarkupPagerNav's options list
+	 *
+	 * Populate this array from your /site/config.php with: 
+	 * $config->TextformatterPagination = array( ... ); 
+	 *
+	 */
+	protected $options = array(
+		'titleListMarkup' => "<hr /><ol class='TextformatterPagination'>{out}</ol>", 
+		'titleItemMarkup' => "<li><a href='{url}'>{out}</a></li>", 
+		'titleCurrentItemMarkup' => "<li>{out}</li>", 
+		'titleNextMarkup' => "<p><strong>Next: <a href='{url}'>{out}</a> &raquo;</strong></p>", 
+		'useNumberPagination' => true, // Whether to use MarkupPagerNav style numbered pagination
+		'useTitlePagination' => true, // Whether to use a Title pagination list, when available
+		'useTitleNext' => true, // Whether to use "Next: [title]" links above Title Pagination, when available
+		'titlePaginationFirst' => true, // Whether to display Title pagination above Numbered pagination
+		'throw404' => true, // Throw a 404 exception if invalid pagination is accessed?
+		);
+
+	protected $initialized = false; 
+
+	/**
+	 * Process the text and insert pagination
+	 *
+	 */
+	public function formatValue(Page $page, Field $field, &$value) {
+
+		if(!$this->initialized) {
+			if(is_array($this->wire('config')->TextformatterPagination)) {
+				$this->options = array_merge($this->options, $this->wire('config')->TextformatterPagination); 
+			}
+			$this->initialized = true; 
+		}
+
+		$key = '~~~PAG~~~';
+		if(strpos($value, '-----') === false) return; // quick exit
+		if(strpos($value, $key) !== false) return;
+
+		if(!$page->template->allowPageNum) { 
+			if($page->editable()) $value = $this->getAdminError($page) . $value;
+			return;
+		}
+
+		$value = preg_replace('{<p>\s*-----+\s*(.*?)</p>}i', $key . '$1~~~' . "\t", $value); 
+		if(strpos($value, $key) === false) return;
+
+		$blocks = explode($key, $value); 
+		if(!count($blocks)) return;
+
+		if(empty($blocks[0])) array_shift($blocks); 
+
+		$titles = array();
+		$hasTitles = false; 
+
+		foreach($blocks as $k => $v) {
+			$pos = strpos($v, "~~~\t"); 	
+			if($pos === false && !$k) {
+				// first item, with no named title at top: use page title
+				$titles[$k] = $page->title; 
+				continue; 
+			}
+			$title = trim(substr($v, 0, $pos)); 
+			$titles[$k] = $title; 
+			if(strlen($title)) $hasTitles = true; 
+			$blocks[$k] = substr($v, $pos+4); 
+		}
+
+		$numPages = count($blocks); 
+		$pageNum = ($this->wire('input')->pageNum - 1); 
+
+		if(!isset($blocks[$pageNum])) {
+			if($this->options['throw404']) throw new Wire404Exception();
+			$blocks[$pageNum] = '';
+		}
+
+		$value = $blocks[$pageNum]; 
+		$numberPagination = '';
+		$titlePagination = '';
+
+		if($this->options['useNumberPagination']) {
+			$numberPagination = $this->getNumberPagination($page, $blocks, $pageNum);
+		}
+
+		if($hasTitles && $this->options['useTitlePagination']) {
+			$titlePagination = $this->getTitlePagination($page, $titles, $pageNum); 
+		}
+
+		if($this->options['titlePaginationFirst']) {
+			$value .= "$titlePagination$numberPagination";
+		} else {
+			$value .= "$numberPagination$titlePagination";
+		}
+
+		$page->set('TextformatterPagination', true); // in case anyone wants to check if pagination is active on the page
+	}
+
+	/**
+	 * Render the title pagination
+	 *
+	 */
+	protected function getTitlePagination(Page $page, array $titles, $pageNum) {
+
+		$prefix = $this->wire('config')->pageNumUrlPrefix;
+                if(!$prefix) $prefix = 'page';
+		$out = '';
+		$nextOut = '';
+
+		foreach($titles as $k => $title) {
+			if(empty($title)) continue; 
+			$url = $k > 0 ? (rtrim($page->url, '/') . "/$prefix" . ($k+1)) : $page->url; 
+			$markup = $k == $pageNum ? $this->options['titleCurrentItemMarkup'] : $this->options['titleItemMarkup']; 
+			$out .= str_replace(array('{url}', '{out}'), array($url, $title), $markup); 
+			if($k == $pageNum+1) {
+				$nextOut = str_replace(array('{url}', '{out}'), array($url, $title), $this->options['titleNextMarkup']); 
+			}
+		}
+
+		$out = str_replace('{out}', $out, $this->options['titleListMarkup']); 
+		if($this->options['useTitleNext']) $out = $nextOut . $out; 
+		return $out; 
+	}
+
+	/**
+	 * Render the numbered pagination
+	 *
+	 */
+	protected function getNumberPagination(Page $page, array $blocks, $pageNum) {
+		$pager = $this->wire('modules')->get('MarkupPagerNav'); 
+		$pageArray = new PageArray();
+		$pageArray->setStart($pageNum); 
+		$pageArray->setTotal(count($blocks)); 
+		$pageArray->setLimit(1); 
+		return $pager->render($pageArray, $this->options); 
+	}
+
+	/**
+	 * Tell the admin they need to enable page numbers for the template
+	 *
+	 */
+	protected function getAdminError(Page $page) {
+		return "<p style='background: crimson; color: white; padding: 0.5em;'>
+			Pagination Textformatter Alert: 
+			Please enable <i>page numbers</i> for template <b>$page->template</b> in  
+			<u>Setup</u> &gt; <u>Templates</u> &gt; <u>URLs</u>.
+			This message only appears to editors of this page.
+			</p>
+			";
+	}
+}
