@@ -23,28 +23,24 @@ clicking "check for new modules" from your Modules screen.
 
 ## How to use
 
-In your admin, go to Setup > Fields and edit your Textarea field(s) where you want to
+1. In your admin, go to Setup > Fields and edit your Textarea field(s) where you want to
 support pagination. On the "Details" tab, select "Pagination" as a Textformatter and save. 
 For the sake of examples, we will assume you added it to a field named "body". 
 
-You will need enable page number support for any templates where you intend to use this
+2. You will need enable page number support for any templates where you intend to use this
 module. Go to Setup > Templates and edit the template(s) where you will be using 
 pagination. On the "URLs" tab, check the box to enable page numbers and Save. For the sake
 of examples, we will assume you added it to a template named "basic-page". 
 
-Now edit a page where you want to use pagination. It should be a page with a long block
-of copy in your "body" field (or whatever field you added it to). 
+3. Now edit a page where you want to use pagination. It should be a page with a long block
+of copy in your "body" field (or whatever field you added it to). Locate the position where 
+you want to separate each page and type in a line of at least five hyphens in a row:
 
-Locate the position where you want to separate each page and type in a line of at least
-five hyphens in a row:
-
-`````
-...This is the last line of text on page 1.
-
-----------------
-
-This is the first line of text on page 2...
-`````
+> ...This is the last line of text on page 1.
+> 
+> ----------------
+> 
+> This is the first line of text on page 2...
 
 The actual markup (HTML) in your editor would look like this: 
 
@@ -60,33 +56,29 @@ Now preview your page to see how it looks.
 ### Title pagination
 
 It is common for multi-page articles to have pagination that behaves more as contextual
-links like this:
+links at the bottom of the page, like this:
 
+> Next: [Performance and Optimization](#)
+> ---------- 
 > - [Introduction](#)
 > - [Performance and Optimization](#)
 > - [Specifications](#)
 > - [Conclusion](#)
 
-In addition, that might be preceded by a "Next" link at the bottom of each page leading
-to the next page: 
-
-> Next: [Performance and Optimization](#)
-
 This Pagination Textformatter will handle all of it for you. Setting up pagination 
 titles is simple. Just follow the instructions under "How to use" above, but follow 
 each line of 5+ hyphens with the title you want to use. Example:
 
-`````
------ Introduction
-
-This is the first line of text on page 1.
-...
-This is the last line of text on page 1. 
-
------ Performance and Optimization
-
-This is the first line of text on page 2. 
-`````
+> ----- Introduction
+> 
+> This is the first line of text on page 1.
+> ...
+> This is the last line of text on page 1. 
+> 
+> ----- Performance and Optimization
+> 
+> This is the first line of text on page 2. 
+> `````
 
 Specifying a title for the first pagination (as in "Introduction" above) is optional.
 If a title is not specified at the top of the content, the page title will be used as 
