@@ -77,9 +77,9 @@ each line of 5+ hyphens with the title you want to use. Example:
 
 > ----- Introduction
 > 
-> This is the first line of text on page 1.
-> ...
-> This is the last line of text on page 1. 
+> This is the first line of text on page 1.  
+> ...  
+> This is the last line of text on page 1.   
 > 
 > ----- Performance and Optimization
 > 
