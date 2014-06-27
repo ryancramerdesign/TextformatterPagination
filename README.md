@@ -44,11 +44,11 @@ you want to separate each page and type in a line of at least five hyphens in a 
 
 The actual markup (HTML) in your editor would look like this: 
 
-`````
+```html
 <p>This is the last line of text on page 1.</p>
 <p>----------------</p>
 <p>This is the first line of text on page 2.</p>
-`````
+```
 
 Now preview your page to see how it looks. 
 
@@ -61,7 +61,7 @@ links at the bottom of the page, like this:
 > 
 > Next: [Performance and Optimization](#)
 > 
-> - [Introduction](#)
+> - Introduction
 > - [Performance and Optimization](#)
 > - [Specifications](#)
 > - [Conclusion](#)
@@ -95,7 +95,7 @@ specify all the options. Just specify the ones you want to change from the defau
 that many of these come from the MarkupPagerNav module, which is used by this module
 for outputting numbered pagination. 
 
-```````
+```php
 $config->TextformatterPagination = array(
 
   /**** TOGGLES *************************************************************/
@@ -164,8 +164,7 @@ $config->TextformatterPagination = array(
   'lastNumberItemClass' => 'MarkupPagerNavLastNum',
   'currentItemClass' => 'MarkupPagerNavOn', 
   ); 
-
-```````
+```
 
 While it is most common to populate the above from `/site/config.php` it should be 
 technically okay to populate it anytime before you need the Textformatter output. For instance,
@@ -176,7 +175,7 @@ for example.
 
 ### Example of configuration for Zurb Foundation pagination
 
-`````````
+```php
 $config->TextformatterPagination = array(
   'nextItemLabel' => '&raquo;',
   'nextItemClass' => 'arrow',
@@ -190,7 +189,7 @@ $config->TextformatterPagination = array(
   'itemMarkup' => "<li class='{class}'>{out}</li>",
   'linkMarkup' => "<a href='{url}'>{out}</a>",
   );
-`````````
+```
 
 ### What about caching?
 
