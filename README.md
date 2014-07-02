@@ -92,18 +92,17 @@ the title for the first pagination.
 ## API
 
 The Pagination Textformatter populates a special array with the same name as this module
-($page->TextformatterPagination) to every Page object that it operates on. Here is what
-is in this array: 
+to every Page object that it operates on. Here is what this array looks like: 
 
 `````PHP
 $page->TextformatterPagination = array(
-  'numPages' => 3, // number of pages total
-  'pageNum' => 0, // zero-based page number
+  'numPages' => 3,             // number of pages total
+  'pageNum' => 0,              // zero-based current page number ($input->pageNum is 1-based)
   'numberPagination' => '...', // rendered markup of number pagination
-  'titlePagination' => '...', // rendered markup of title pagination
-  'title' => '...', // title for current pagination
-  'titles' => array(...), // titles for all paginations (indexed by pageNum)
-  'titleNextLink' => '...', // rendered markup for "next" link 
+  'titlePagination' => '...',  // rendered markup of title pagination
+  'title' => '...',            // title for current pagination
+  'titles' => array(...),      // titles for all paginations, indexed by zero-based pageNum
+  'titleNextLink' => '...',    // rendered markup for "next" link 
   ); 
 ````
 
@@ -117,9 +116,9 @@ if($input->pageNum > 1 && !$page->TextformatterPagination) {
   throw new Wire404Exception();
 }
 `````
-However, the reason $page->TextformatterPagination contains all those properties in the
+However, the reason `$page->TextformatterPagination` contains all those properties in the
 array is because it is assumed you might want to re-use them somewhere in your page. For
-instance, perhaps you want to repeat the `titlePagionation` in the sidebar: 
+instance, perhaps you want to repeat the `titlePagination` in the sidebar: 
 
 `````PHP
 <div id='sidebar'>
@@ -147,7 +146,7 @@ if($p && $p['numPages'] > 1) {
 // now output the body copy
 echo $page->body; 
 `````
-To summarize, $page->TextformatterPagination contains several bits of info and markup
+To summarize, `$page->TextformatterPagination` contains several bits of info and markup
 related to the current page pagination info that you may find useful to read and 
 output or act upon. However, use of it is completely optional and provided primarily 
 for cases where you want to expand upon the pagination features for your site. 
