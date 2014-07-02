@@ -16,7 +16,7 @@ class TextformatterPagination extends Textformatter {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Pagination', 
-			'version' => 1, 
+			'version' => 2, 
 			'summary' => "Provides pagination capability within a block of copy. Put 5+ hyphens '-----' on a single line (within paragraph tags) for regular pagination, or '-----Your Text' on a single line for named pagination.", 
 			'requires' => 'MarkupPagerNav'
 		); 
@@ -103,12 +103,23 @@ class TextformatterPagination extends Textformatter {
 		$numberPagination = '';
 		$titlePagination = '';
 
+		// values we will set to $page->TextformatterPagination variable
+		$extras = array(
+			'numPages' => $numPages, 
+			'pageNum' => $pageNum, // zero-based page number
+			'numberPagination' => '', 
+			'titlePagination' => '',
+			'title' => isset($titles[$pageNum]) ? $titles[$pageNum] : '', // current title
+			'titles' => $titles, 
+			'titleNextLink' => ''
+			); 
+
 		if($this->options['useNumberPagination']) {
-			$numberPagination = $this->getNumberPagination($page, $blocks, $pageNum);
+			$numberPagination = $this->getNumberPagination($page, $blocks, $pageNum, $extras);
 		}
 
 		if($hasTitles && $this->options['useTitlePagination']) {
-			$titlePagination = $this->getTitlePagination($page, $titles, $pageNum); 
+			$titlePagination = $this->getTitlePagination($page, $titles, $pageNum, $extras); 
 		}
 
 		if($this->options['titlePaginationFirst']) {
@@ -117,14 +128,17 @@ class TextformatterPagination extends Textformatter {
 			$value .= "$numberPagination$titlePagination";
 		}
 
-		$page->set('TextformatterPagination', true); // in case anyone wants to check if pagination is active on the page
+		// set a value to the page to let the developer know pagination is active
+		// as well as to give them the opportunity to re-use any of the pagination
+		// links if they want to (like at the top of the page)
+		$page->set('TextformatterPagination', $extras);
 	}
 
 	/**
 	 * Render the title pagination
 	 *
 	 */
-	protected function getTitlePagination(Page $page, array $titles, $pageNum) {
+	protected function getTitlePagination(Page $page, array $titles, $pageNum, &$extras) {
 
 		$prefix = $this->wire('config')->pageNumUrlPrefix;
                 if(!$prefix) $prefix = 'page';
@@ -142,6 +156,8 @@ class TextformatterPagination extends Textformatter {
 		}
 
 		$out = str_replace('{out}', $out, $this->options['titleListMarkup']); 
+		$extras['titlePagination'] = $out; 
+		$extras['titleNextLink'] = $nextOut; 
 		if($this->options['useTitleNext']) $out = $nextOut . $out; 
 		return $out; 
 	}
@@ -150,13 +166,15 @@ class TextformatterPagination extends Textformatter {
 	 * Render the numbered pagination
 	 *
 	 */
-	protected function getNumberPagination(Page $page, array $blocks, $pageNum) {
+	protected function getNumberPagination(Page $page, array $blocks, $pageNum, &$extras) {
 		$pager = $this->wire('modules')->get('MarkupPagerNav'); 
 		$pageArray = new PageArray();
 		$pageArray->setStart($pageNum); 
 		$pageArray->setTotal(count($blocks)); 
 		$pageArray->setLimit(1); 
-		return $pager->render($pageArray, $this->options); 
+		$out = $pager->render($pageArray, $this->options); 
+		$extras['numberPagination'] = $out; 
+		return $out; 
 	}
 
 	/**
