@@ -16,8 +16,10 @@ class TextformatterPagination extends Textformatter {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Pagination', 
-			'version' => 2, 
-			'summary' => "Provides pagination capability within a block of copy. Put 5+ hyphens '-----' on a single line (within paragraph tags) for regular pagination, or '-----Your Text' on a single line for named pagination.", 
+			'version' => 3, 
+			'summary' => "Provides pagination capability within a block of copy. Put 5+ hyphens '-----' on a single line (within paragraph tags) for regular pagination, or '----- Your Text' on a single line for named pagination. See the README for more.", 
+			'href' => 'https://github.com/ryancramerdesign/TextformatterPagination', 
+			'author' => 'Ryan Cramer', 
 			'requires' => 'MarkupPagerNav'
 		); 
 	}
@@ -43,6 +45,8 @@ class TextformatterPagination extends Textformatter {
 		'throw404' => true, // Throw a 404 exception if invalid pagination is accessed?
 		);
 
+	protected $populatePagination = true; 
+
 	protected $initialized = false; 
 
 	/**
@@ -67,7 +71,16 @@ class TextformatterPagination extends Textformatter {
 			return;
 		}
 
+		if(stripos($value, 'pagination-off-all') !== false && preg_match('{>\s*pagination-off-all\s*<}i', $value)) {
+			$this->populatePagination = false; 	
+		}
+
+		// paragraph version
 		$value = preg_replace('{<p>\s*-----+\s*(.*?)</p>}i', $key . '$1~~~' . "\t", $value); 
+
+		// headline version
+		$value = preg_replace('{<(h\d)>\s*-----+\s*(.+?)</\\1>}i', $key . '$2~~~' . "\t\n<$1>$2</$1>", $value); 
+
 		if(strpos($value, $key) === false) return;
 
 		$blocks = explode($key, $value); 
@@ -122,16 +135,54 @@ class TextformatterPagination extends Textformatter {
 			$titlePagination = $this->getTitlePagination($page, $titles, $pageNum, $extras); 
 		}
 
-		if($this->options['titlePaginationFirst']) {
-			$value .= "$titlePagination$numberPagination";
-		} else {
-			$value .= "$numberPagination$titlePagination";
+		$this->populateTokens($value, $extras); 
+
+		if($this->populatePagination) { 
+			if($this->options['titlePaginationFirst']) {
+				$value .= "$titlePagination$numberPagination";
+			} else {
+				$value .= "$numberPagination$titlePagination";
+			}
 		}
 
 		// set a value to the page to let the developer know pagination is active
 		// as well as to give them the opportunity to re-use any of the pagination
 		// links if they want to (like at the top of the page)
 		$page->set('TextformatterPagination', $extras);
+	}
+
+	/**
+	 * Look for tokens in $value and replace with pagination data when found
+	 *
+	 */
+	protected function populateTokens(&$value, &$extras) {
+
+		// these tokens consume the surrounding tag
+		$tokens = array(
+			'pagination-titles' => $extras['titlePagination'], 
+			'pagination-titles-next' => $extras['titleNextLink'],
+			'pagination-numbers' => $extras['numberPagination'], 
+			'pagination-off-all' => '', 
+			'pagination-off' => '', 
+			);
+
+		foreach($tokens as $tokenKey => $tokenValue) {
+			if(stripos($value, $tokenKey) === false) continue; 
+			if($tokenKey == 'pagination-off') $this->populatePagination = false; 
+			$value = preg_replace('{<([a-z]+[0-9]?)>\s*' . $tokenKey . '\s*</\\1>}si', $tokenValue, $value); 
+		}
+
+		// these tokens do not consume the surrounding tag (nor do they require one)
+		$tokens = array(
+			'pagination-current' => $extras['pageNum']+1,
+			'pagination-total' => $extras['numPages'], 
+			'pagination-title' => $extras['title'], 
+			);
+
+		foreach($tokens as $tokenKey => $tokenValue) {
+			if(stripos($value, $tokenKey) === false) continue; 
+			$value = preg_replace('{\b' . $tokenKey . '\b}i', $tokenValue, $value); 
+		}
 	}
 
 	/**

@@ -89,6 +89,66 @@ Specifying a title for the first pagination (as in "Introduction" above) is opti
 If a title is not specified at the top of the content, the page title will be used as 
 the title for the first pagination. 
 
+#### Headlines and title pagination
+
+If you are using title pagination as described above, but want those pagination titles
+to also be headlines at the beginning of each pagination, simply do the same thing as
+above but make them a headline (rather than a paragraph). If you were to veiw the 
+source in your editor, this is what you would want it to look like:
+
+```html
+> <h2>----- Performance and Optimization</h2>
+```
+This module will detect that as a pagination title and paginate appropriately. After it
+runs, the HTML will look like this, with your headline in tact: 
+
+```html
+> <h2>Performance and Optimization</h2>
+```
+Please note that we are just using `<h2>` as an example here, and that it will work on 
+any headline tag. 
+
+
+### Shortcodes
+
+This module will look for several different shortcodes, tokens, tags (or whatever you 
+want to call them) and automatically replace them with a pagination value. 
+
+#### Consuming shortcodes
+
+The following shortcodes must appear in an HTML tag (with no attributes) by themselves.
+This can be any HTML tag with no attributes, but the most common scenario is that they 
+would be surrounded in `<p>paragraph</p>` tags, which would be the result if you just
+typed the shortcode on its own line in your rich text editor. These shortcodes will 
+consume and replace the tag they are surrounded with. 
+
+- `pagination-titles` - Gets replaced with the titles pagination links. 
+- `pagination-titles-next` - Gets replaced with the titles pagination "Next" link. 
+- `pagination-numbers` - Gets replaced with the numbered pagination links. 
+- `pagination-off` - This tells the module to skip insertion of the automatic 
+   pagination links at the bottom of the content, for the pagination in which it 
+   appears. This shortcode will simply be removed rather than replaced with anything. 
+- `pagination-off-all` - Same as the above except that it applies to all pagination
+   pages rather than just the current. 
+
+#### Non-consuming shortcodes
+
+The following shortcodes do not need to be surrounded in tags, nor do they consume any
+tags they are surrounded with. 
+
+- `pagination-current` - Number of current pagination. 
+- `pagination-total` - Total number of pages. 
+- `pagination-title` - Title of current pagination. 
+
+Here is an example of non-consuming shortcodes in action: 
+
+> Page pagination-current of pagination-total: pagination-title
+
+...would result in this output: 
+
+> Page 2 of 4: Performance and Optimization
+
+
 ## API
 
 The Pagination Textformatter populates a special array with the same name as this module
